@@ -1,0 +1,110 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>Battle Network Proto - Name TBD</title>
+	<script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+// Creates an instance of phaser
+// Args: canvas width, canvas height, render context, DOM element ID to insert phaser, phaser states
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+var FIELD_WIDTH = 5;
+var FIELD_HEIGHT = 3;
+
+var leftKey;
+var rightKey;
+var upKey;
+var downKey;
+
+function preload() {
+	//load the game assets 
+	game.load.image('field', 'assets/field.png');
+	game.load.image('player', 'assets/dot.png');
+    game.load.image('square', 'assets/square.png');
+}
+
+function create() {
+ 	game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    // Grid for the field
+    squares = game.add.group();
+    squaresArray = new Array(FIELD_HEIGHT*FIELD_WIDTH);
+
+    fieldArray = new Array(FIELD_HEIGHT);
+    for (var i = 0; i < FIELD_HEIGHT; i++) {
+    	fieldArray[i] = new Array(FIELD_WIDTH);
+    }
+
+    // Develop the grid details, each grid square is its own object of the group. Has it's own ID.
+    var gridNum = 0;
+    for (var i = 0; i < FIELD_HEIGHT; i++) {
+        for (var j = 0; j < FIELD_WIDTH; j++) {
+            fieldArray[i][j] = gridNum;
+            squaresArray[gridNum] = squares.create(200 + (j*80), 300 + (i*80), 'square');
+        }
+    }
+
+    // Player position
+    player_pos_x = 0;
+    player_pos_y = 0;
+
+    // The player dot
+    player = game.add.sprite(25, 225, 'player');
+    game.physics.arcade.enable(player);
+    player.body.collideWorldBounds = true;
+
+    // Keyboard inputs
+    leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+    upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+    downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+    leftKey.onDown.add(movePlayerLeft, this);
+    rightKey.onDown.add(movePlayerRight, this);
+    upKey.onDown.add(movePlayerUp, this);
+    downKey.onDown.add(movePlayerDown, this);
+}
+
+function update() {
+    //Update player position
+    player.body.x = (player_pos_x*80) + 225;
+    player.body.y = (player_pos_y*80) + 325;
+}
+
+function movePlayerLeft() {
+    if (player_pos_x > 0) {
+        player_pos_x--;
+    }
+}
+
+function movePlayerRight() {
+    if (player_pos_x < FIELD_WIDTH-1) {
+	   player_pos_x++;
+    }
+}
+
+function movePlayerUp() {
+    if (player_pos_y > 0) {
+        player_pos_y--;
+    }
+}
+
+function movePlayerDown() {
+    if (player_pos_y < FIELD_HEIGHT-1) {
+        player_pos_y++;
+    }
+}
+
+</script>
+
+</body>
+</html>
