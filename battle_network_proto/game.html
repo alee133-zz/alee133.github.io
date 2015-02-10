@@ -25,6 +25,9 @@ var leftKey;
 var rightKey;
 var upKey;
 var downKey;
+var spaceKey;
+
+var playerAttacking = false;
 
 function preload() {
 	//load the game assets 
@@ -40,9 +43,15 @@ function create() {
     squares = game.add.group();
     squaresArray = new Array(FIELD_HEIGHT*FIELD_WIDTH);
 
+    // Grid for the opponent field
+    oppSquares = game.add.group();
+    oppSquaresArray = new Array(FIELD_HEIGHT*FIELD_WIDTH);
+
     fieldArray = new Array(FIELD_HEIGHT);
+    oppFieldArray = new Array(FIELD_HEIGHT);
     for (var i = 0; i < FIELD_HEIGHT; i++) {
     	fieldArray[i] = new Array(FIELD_WIDTH);
+        oppFieldArray[i] = new Array(FIELD_WIDTH);
     }
 
     // Develop the grid details, each grid square is its own object of the group. Has it's own ID.
@@ -50,7 +59,11 @@ function create() {
     for (var i = 0; i < FIELD_HEIGHT; i++) {
         for (var j = 0; j < FIELD_WIDTH; j++) {
             fieldArray[i][j] = gridNum;
+            oppFieldArray[i][j] = gridNum;
             squaresArray[gridNum] = squares.create(200 + (j*80), 300 + (i*80), 'square');
+            oppSquaresArray[gridNum] = squares.create(200+(j*80), 50 + (i*80), 'square');
+
+            gridNum++;
         }
     }
 
@@ -72,12 +85,33 @@ function create() {
     rightKey.onDown.add(movePlayerRight, this);
     upKey.onDown.add(movePlayerUp, this);
     downKey.onDown.add(movePlayerDown, this);
-}
 
+    // TEMPORARY CONTENT: 
+    // Attack button for test
+    spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    spaceKey.onUp.add(activatePlayerAttack, this);
+    // Text for controls
+    var text = "Press directional keys to move. Space to attack."
+    var playerText = "Player Grid"; 
+    var opponentText = "Enemy Grid";
+    var style = {font: "18px Arial", fill: "#ffffff", align: "center"};
+    var controlText = game.add.text(10,10, text, style);
+    var pText = game.add.text(100, 300, playerText, style);
+    var oppText = game.add.text(100, 50, opponentText, style); 
+}
+   
 function update() {
     //Update player position
     player.body.x = (player_pos_x*80) + 225;
     player.body.y = (player_pos_y*80) + 325;
+
+    // If attack, show potential attack slot
+    if (spaceKey.isDown) {
+        resetGrid();
+        for (var i = 0; i < 3; i++) {
+            oppSquaresArray[player_pos_x + (i * 5)].tint = 0xff0000; //red
+        }
+    }
 }
 
 function movePlayerLeft() {
@@ -102,6 +136,21 @@ function movePlayerDown() {
     if (player_pos_y < FIELD_HEIGHT-1) {
         player_pos_y++;
     }
+} 
+
+function resetGrid() {
+    for (var i = 0; i < FIELD_HEIGHT*FIELD_WIDTH; i++) {
+        squaresArray[i].tint = 0xffffff;
+        oppSquaresArray[i].tint = 0xffffff;
+    }
+}
+
+function activatePlayerAttack() {
+    // Trigger the attack and then clear the grid
+    for (var i = 0; i < 3; i++) {
+        oppSquaresArray[player_pos_x + (i * 5)].tint = 0x00ff00; //green
+    }
+    window.setTimeout(resetGrid, 250);
 }
 
 </script>
